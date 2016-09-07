@@ -2,5 +2,6 @@
     <string name="app_name">SeoBangnim</string>
     <string name="open_drawer">open</string>
     <string name="close_drawer">close</string>
+    <string name="str_done">완료</string>
 </resources>
 

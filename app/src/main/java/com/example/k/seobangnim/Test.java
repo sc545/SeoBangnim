@@ -22,7 +22,7 @@ public class Test extends Activity {
         toolbar.setLayoutParams(new Toolbar.LayoutParams(params));
         toolbar.setBackgroundColor(Color.parseColor("#ff0000"));
         toolbar.setTitle("Test");
-        toolbar.setNavigationIcon(getDrawable(android.R.drawable.ic_menu_recent_history));
+        toolbar.setNavigationIcon(getDrawable(android.R.drawable.ic_menu_set_as));
 //        Drawable drawable = Drawable.createFromPath(
         toolbar.setOverflowIcon(getDrawable(R.drawable.ic_drawer));
         addContentView(toolbar, params);
