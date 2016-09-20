@@ -26,15 +26,15 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 /**
- * Created by mutecsoft on 2016-09-01.
+ * Created by K on 2016-09-01.
  */
 public class MainActivity extends Activity {
-    private static final String EXTRA_ITEM = "item";
+    // Selected item
+    public static final String EXTRA_ITEM = "item";
     private static final int PERMISSION_REQUEST_CODE = 999;
-    String[] permissions = {"android.permission.INTERNET"};
+    String[] permissions = {"android.permission.INTERNET", "android.permission.ACCESS_FINE_LOCATION"};
 
     private DrawerLayout mDrawerLayout;
-    private FrameLayout mLayoutContent;
     private ListView mLvNavList;
 
     @Override
@@ -42,10 +42,13 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (checkSelfPermission(permissions[0]) == PackageManager.PERMISSION_DENIED ) {
+        // Check permissions
+        if (checkSelfPermission(permissions[0]) == PackageManager.PERMISSION_DENIED || checkSelfPermission(permissions[1]) == PackageManager.PERMISSION_DENIED) {
             requestPermissions(permissions, PERMISSION_REQUEST_CODE);
         }
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+        mLvNavList = (ListView) findViewById(R.id.lvNavList);
 
         // Init toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -64,13 +67,12 @@ public class MainActivity extends Activity {
             }
         });
 
-        mLayoutContent = (FrameLayout) findViewById(R.id.layoutContent);
-        mLvNavList = (ListView) findViewById(R.id.lvNavList);
-
+        // Init drawer
         String[] navItems = {"btn1", "btn2", "btn3", "btn4", "btn5", "btn6"};
         mLvNavList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_expandable_list_item_1, navItems));
         mLvNavList.setOnItemClickListener(new DrawerItemClickListener());
 
+        // Init button
         Button[] btn = new Button[6];
         int[] btnId = {R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4, R.id.btn5, R.id.btn6};
         ButtonClickListener buttonClickListener = new ButtonClickListener();
@@ -81,6 +83,15 @@ public class MainActivity extends Activity {
 
     }
 
+    // Impl click listener
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            startMapActivity(position);
+            mDrawerLayout.closeDrawer(mLvNavList);
+        }
+    }
     private class ButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -108,21 +119,17 @@ public class MainActivity extends Activity {
             startMapActivity(position);
         }
     }
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
 
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            startMapActivity(position);
-            mDrawerLayout.closeDrawer(mLvNavList);
-        }
-    }
-
+    // Start naver map
     private void startMapActivity(int position) {
         Intent intent = new Intent(this, MapActivity.class);
         intent.putExtra(EXTRA_ITEM, position);
         startActivity(intent);
     }
 
+    /*
+        If you want drawerToggle button ...
+     */
 //    @Override
 //    protected void onPostCreate(Bundle savedInstanceState) {
 //        super.onPostCreate(savedInstanceState);
@@ -143,6 +150,7 @@ public class MainActivity extends Activity {
 //        return super.onOptionsItemSelected(item);
 //    }
 
+    // This method can stop activity finish when drawer is open.
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && mDrawerLayout.isDrawerOpen(mLvNavList)) {
@@ -156,7 +164,7 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (checkSelfPermission(permissions[0]) == PackageManager.PERMISSION_DENIED) {
+            if (checkSelfPermission(permissions[0]) == PackageManager.PERMISSION_DENIED || checkSelfPermission(permissions[1]) == PackageManager.PERMISSION_DENIED) {
                 Toast.makeText(getApplicationContext(), "PERMISSION_DENIED", Toast.LENGTH_SHORT).show();
                 finish();
             }
