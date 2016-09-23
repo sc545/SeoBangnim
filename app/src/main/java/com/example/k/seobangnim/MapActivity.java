@@ -71,17 +71,19 @@ public class MapActivity extends NMapActivity {
     private SharedPreferences mPreferences;
 
     // map
-    NMapView mMapView;
+    private NMapView mMapView;
     // map controller
-    NMapController mMapController;
+    private NMapController mMapController;
     // overlay resource provider
-    NMapResourceProvider mMapViewerResourceProvider;
+    private NMapResourceProvider mMapViewerResourceProvider;
     // overlay manager
-    NMapOverlayManager mOverlayManager;
+    private NMapOverlayManager mOverlayManager;
 
-    NMapMyLocationOverlay mMyLocationOverlay;
-    NMapLocationManager mMapLocationManager;
-    NMapCompassManager mMapCompassManager;
+    private NMapMyLocationOverlay mMyLocationOverlay;
+    private NMapLocationManager mMapLocationManager;
+    private NMapCompassManager mMapCompassManager;
+
+    private NGeoPoint mCurrentLocation;
 
     interface InvalidateListener {
         void invalidate(ArrayList arrayList);
@@ -148,11 +150,6 @@ public class MapActivity extends NMapActivity {
         // create my location overlay
         mMyLocationOverlay = mOverlayManager.createMyLocationOverlay(mMapLocationManager, mMapCompassManager);
 
-        int item = getIntent().getIntExtra(MainActivity.EXTRA_ITEM, -1);
-        log("item : "+item);
-        if (item != -1) {
-            searchLocation(item);
-        }
     }
 
     private void createView() {
@@ -286,6 +283,11 @@ public class MapActivity extends NMapActivity {
                 // restore map view state such as map center position and zoom level.
                 restoreInstanceState();
 
+                mCurrentLocation = mMapLocationManager.getMyLocation();
+                int item = getIntent().getIntExtra(MainActivity.EXTRA_ITEM, -1);
+                if (item != -1) {
+                    searchLocation(item);
+                }
             } else { // fail
                 Log.e(LOG_TAG, "onFailedToInitializeWithError: " + errorInfo.toString());
 
@@ -450,10 +452,14 @@ public class MapActivity extends NMapActivity {
 
         @Override
         public boolean onLocationChanged(NMapLocationManager locationManager, NGeoPoint myLocation) {
+            mCurrentLatitude = myLocation.getLatitude();
+            mCurrentLongitude = myLocation.getLongitude();
 
             if (mMapController != null) {
                 mMapController.animateTo(myLocation);
+
             }
+
 
             return true;
         }
@@ -497,7 +503,7 @@ public class MapActivity extends NMapActivity {
         Toast.makeText(this, ""+position, Toast.LENGTH_SHORT).show();
         switch (position) {
             case 0:
-                searchAsyncTask.execute("갈비");
+                searchAsyncTask.execute("역삼동 갈비");
                 break;
             case 1:
                 searchAsyncTask.execute("한솥");
@@ -556,6 +562,14 @@ public class MapActivity extends NMapActivity {
                 return new NMapCalloutBasicOverlay(nMapOverlay, nMapOverlayItem, rect);
             }
         });
+    }
+
+    public double getmCurrentLatitude() {
+        return mCurrentLatitude;
+    }
+
+    public double getmCurrentLongitude() {
+        return mCurrentLongitude;
     }
 
     @Override
